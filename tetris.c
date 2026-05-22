@@ -27,6 +27,7 @@ typedef struct {
 
 // Inicializar fila
 void inicializarFila(Fila *f) {
+
     f->inicio = 0;
     f->fim = 0;
     f->total = 0;
@@ -34,26 +35,25 @@ void inicializarFila(Fila *f) {
 
 // Inicializar pilha
 void inicializarPilha(Pilha *p) {
+
     p->topo = -1;
 }
 
 // Verificar fila cheia
 int filaCheia(Fila *f) {
-    return f->total == TAMANHO_FILA;
-}
 
-// Verificar fila vazia
-int filaVazia(Fila *f) {
-    return f->total == 0;
+    return f->total == TAMANHO_FILA;
 }
 
 // Verificar pilha cheia
 int pilhaCheia(Pilha *p) {
+
     return p->topo == TAMANHO_PILHA - 1;
 }
 
 // Verificar pilha vazia
 int pilhaVazia(Pilha *p) {
+
     return p->topo == -1;
 }
 
@@ -72,12 +72,8 @@ Peca gerarPeca(int id) {
     return nova;
 }
 
-// Inserir peça na fila
+// Inserir na fila
 void enqueue(Fila *f, Peca p) {
-
-    if (filaCheia(f)) {
-        return;
-    }
 
     f->itens[f->fim] = p;
 
@@ -86,7 +82,7 @@ void enqueue(Fila *f, Peca p) {
     f->total++;
 }
 
-// Remover peça da fila
+// Remover da fila
 Peca dequeue(Fila *f) {
 
     Peca removida = f->itens[f->inicio];
@@ -98,20 +94,15 @@ Peca dequeue(Fila *f) {
     return removida;
 }
 
-// Inserir peça na pilha
+// Inserir na pilha
 void push(Pilha *p, Peca peca) {
-
-    if (pilhaCheia(p)) {
-        printf("Pilha cheia!");
-        return;
-    }
 
     p->topo++;
 
     p->itens[p->topo] = peca;
 }
 
-// Remover peça da pilha
+// Remover da pilha
 Peca pop(Pilha *p) {
 
     Peca removida = p->itens[p->topo];
@@ -143,9 +134,10 @@ void mostrarFila(Fila *f) {
 // Mostrar pilha
 void mostrarPilha(Pilha *p) {
 
-    printf("Pilha de reserva: ");
+    printf("    Pilha de reserva ");
 
     if (pilhaVazia(p)) {
+
         printf("Vazia");
         return;
     }
@@ -160,6 +152,53 @@ void mostrarPilha(Pilha *p) {
     }
 
     printf("");
+}
+
+// Trocar peça da frente da fila com topo da pilha
+void trocarAtual(Fila *f, Pilha *p) {
+
+    if (pilhaVazia(p)) {
+
+        printf("Pilha vazia!");
+        return;
+    }
+
+    Peca temp;
+
+    temp = f->itens[f->inicio];
+
+    f->itens[f->inicio] = p->itens[p->topo];
+
+    p->itens[p->topo] = temp;
+
+    printf("Troca realizada com sucesso!");
+}
+
+// Trocar os 3 primeiros da fila com os 3 da pilha
+void trocaMultipla(Fila *f, Pilha *p) {
+
+    if (p->topo < 2) {
+
+        printf("A pilha precisa ter 3 peças!");
+        return;
+    }
+
+    int indiceFila = f->inicio;
+
+    for (int i = 0; i < 3; i++) {
+
+        Peca temp;
+
+        temp = f->itens[indiceFila];
+
+        f->itens[indiceFila] = p->itens[p->topo - i];
+
+        p->itens[p->topo - i] = temp;
+
+        indiceFila = (indiceFila + 1) % TAMANHO_FILA;
+    }
+
+    printf("Troca múltipla realizada!");
 }
 
 int main() {
@@ -186,16 +225,16 @@ int main() {
 
     do {
 
-        printf("=========== ESTADO ATUAL ===========\n" );
+        printf("\n=========== ESTADO ATUAL ===========\n" );
 
         mostrarFila(&fila);
-        printf("\n");
         mostrarPilha(&reserva);
 
-        printf("\nMenu: \n");
-        printf("1 - Jogar peça\n");
-        printf("2 - Reservar peça\n");
-        printf("3 - Usar peça reservada\n");
+        printf("\n1 - Jogar peça da frente da fila\n");
+        printf("2 - Enviar peça da fila para pilha\n");
+        printf("3 - Usar peça da pilha\n");
+        printf("4 - Trocar peça atual com topo da pilha\n");
+        printf("5 - Troca múltipla entre fila e pilha\n");
         printf("0 - Sair\n");
 
         printf("Escolha uma opção: ");
@@ -207,7 +246,7 @@ int main() {
 
                 Peca jogada = dequeue(&fila);
 
-                printf("Peça jogada: [%c %d]\n",
+                printf("Peça jogada: [%c %d]",
                        jogada.nome,
                        jogada.id);
 
@@ -222,7 +261,7 @@ int main() {
 
                 if (pilhaCheia(&reserva)) {
 
-                    printf("Pilha de reserva cheia!\n");
+                    printf("Pilha cheia!");
                     break;
                 }
 
@@ -230,7 +269,7 @@ int main() {
 
                 push(&reserva, reservada);
 
-                printf("Peça reservada: [%c %d]\n",
+                printf("Peça reservada: [%c %d]",
                        reservada.nome,
                        reservada.id);
 
@@ -245,50 +284,36 @@ int main() {
 
                 if (pilhaVazia(&reserva)) {
 
-                    printf("Nenhuma peça reservada!\n");
+                    printf("Pilha vazia!");
                     break;
                 }
 
                 Peca usada = pop(&reserva);
 
-                printf("Peça usada da reserva: [%c %d]\n",
+                printf("Peça usada: [%c %d]",
                        usada.nome,
                        usada.id);
 
                 break;
             }
 
+            case 4:
+                trocarAtual(&fila, &reserva);
+                break;
+
+            case 5:
+                trocaMultipla(&fila, &reserva);
+                break;
+
             case 0:
                 printf("Encerrando programa...");
                 break;
 
             default:
-                printf("Opção inválida!\n");
+                printf("Opção inválida!");
         }
 
     } while(opcao != 0);
 
     return 0;
 }
-
-
-   
-
-    // 🔄 Nível Mestre: Integração Estratégica entre Fila e Pilha
-    //
-    // - Implemente interações avançadas entre as estruturas:
-    //      4 - Trocar a peça da frente da fila com o topo da pilha
-    //      5 - Trocar os 3 primeiros da fila com as 3 peças da pilha
-    // - Para a opção 4:
-    //      Verifique se a fila não está vazia e a pilha tem ao menos 1 peça.
-    //      Troque os elementos diretamente nos arrays.
-    // - Para a opção 5:
-    //      Verifique se a pilha tem exatamente 3 peças e a fila ao menos 3.
-    //      Use a lógica de índice circular para acessar os primeiros da fila.
-    // - Sempre valide as condições antes da troca e informe mensagens claras ao usuário.
-    // - Use funções auxiliares, se quiser, para modularizar a lógica de troca.
-    // - O menu deve ficar assim:
-    //      4 - Trocar peça da frente com topo da pilha
-    //      5 - Trocar 3 primeiros da fila com os 3 da pilha
-
-
